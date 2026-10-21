@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#150f21">
+<meta name="description" content="Free 10-minute callback and free 30-day coaching with Prakash Sagar. Hindi or English.">
 <title>Free 30-day coaching with Prakash Sagar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;700&display=swap">
@@ -55,6 +57,8 @@ summary{cursor:pointer;font-weight:700}
 details p{margin:10px 0 0;color:var(--mute)}
 footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--mute);font-size:.84rem}
 @media(min-width:860px){.hero{grid-template-columns:1.1fr .9fr;align-items:start;gap:56px;padding-top:48px}.two{grid-template-columns:1fr 1fr;gap:56px}.slip{position:sticky;top:24px}}
+@media(max-width:520px){.wrap{padding:0 16px}.hero{gap:28px;padding:16px 0 40px}.slip{padding:22px 16px}.pills li{font-size:.82rem}.top{padding:14px 0}}
+button,a,input,select,textarea{-webkit-tap-highlight-color:transparent}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -126,10 +130,13 @@ footer{border-top:1px solid var(--line);padding:28px 0 40px;color:var(--mute);fo
 
 <script>
 const WHATSAPP = "919939699987";
-const EMAIL = "prakash.venus06@gmail.com";
+const EMAIL = "prakashvenus06@gmail.com";
+const FORM_KEY = "47844ce0-6d14-486e-9873-7ffd8548afe3";
+
 const $ = id => document.getElementById(id);
 const msg = $("msg");
 function say(t, ok){ msg.textContent = t; msg.className = "msg" + (ok ? " ok" : ""); }
+
 function read(){
   const d = {n:$("n").value.trim(), p:$("p").value.trim(), t:$("t").value, r:$("r").value.trim(), w:$("w").value};
   const digits = d.p.replace(/\D/g, "");
@@ -139,26 +146,40 @@ function read(){
   if (!$("c").checked) return say("Please tick the consent box so I can call you.");
   return d;
 }
+
 function text(d){
-  return "Hi Prakash, I’d like a free callback for the 30-day coaching.\n\nName: " + d.n + "\nPhone: " + d.p + "\nHelp with: " + d.t + "\nWhy: " + d.r + "\nBest time: " + d.w;
+  return "Hi Prakash, I\u2019d like a free callback for the 30-day coaching.\n\nName: " + d.n + "\nPhone: " + d.p + "\nHelp with: " + d.t + "\nWhy: " + d.r + "\nBest time: " + d.w;
 }
-function go(url){
-  const a = document.createElement("a");
-  a.href = url; a.target = "_blank"; a.rel = "noopener";
-  document.body.appendChild(a); a.click(); a.remove();
+
+function backup(d){
+  if (!FORM_KEY) return;
+  try {
+    fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {"Content-Type":"application/json", "Accept":"application/json"},
+      body: JSON.stringify({access_key: FORM_KEY, subject: "Free callback request: " + d.n, name: d.n, phone: d.p, help_with: d.t, why: d.r, best_time: d.w}),
+      keepalive: true
+    }).catch(function(){});
+  } catch(e){}
+}
+
+function go(url, label){
   msg.className = "msg ok";
-  msg.innerHTML = "Almost done. Send the message that just opened. <a href=\"" + url + "\" target=\"_blank\" rel=\"noopener\">Tap here if it didn’t open.</a>";
+  msg.innerHTML = "Opening " + label + "\u2026 just press <b>Send</b>. <a href=\"" + url + "\">Tap here if it didn\u2019t open.</a>";
+  window.location.href = url;
 }
-$("f").addEventListener("submit", e => {
+
+$("f").addEventListener("submit", function(e){
   e.preventDefault();
   const d = read(); if (!d) return;
-  if (!WHATSAPP) return say("This page isn’t connected to a WhatsApp number yet.");
-  go("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(text(d)));
+  backup(d);
+  go("https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(text(d)), "WhatsApp");
 });
-$("em").addEventListener("click", () => {
+
+$("em").addEventListener("click", function(){
   const d = read(); if (!d) return;
-  if (!EMAIL) return say("This page isn’t connected to an email yet.");
-  go("mailto:" + EMAIL + "?subject=" + encodeURIComponent("Free callback request: " + d.n) + "&body=" + encodeURIComponent(text(d)));
+  backup(d);
+  go("mailto:" + EMAIL + "?subject=" + encodeURIComponent("Free callback request: " + d.n) + "&body=" + encodeURIComponent(text(d)), "your email app");
 });
 </script>
 </body>
